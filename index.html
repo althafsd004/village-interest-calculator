@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Village Loan Interest Calculator (Vaddi &amp; Chakra Vaddi)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @media print {
+      body {
+        background-color: white !important;
+        color: #111827 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-border {
+        box-shadow: none !important;
+        border: 1px solid #d1d5db !important;
+      }
+    }
+    
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    
+    /* Smooth custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <!-- Header -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+          <i class="fa-solid fa-calculator text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            Vaddi Calculator
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+              Village Loan
+            </span>
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Chakra Vaddi (Compound) &amp; Sada Vaddi (Simple) with Partial Payments</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-2">
+        <button id="openHistoryBtn" type="button" class="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>History</span>
+          <span id="historyBadge" class="hidden ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-600 text-white leading-none">0</span>
+        </button>
+
+        <button id="themeToggleBtn" type="button" class="p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer" title="Toggle Dark/Light Mode">
+          <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
+        </button>
+        
+        <button id="printBtn" type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-xs transition cursor-pointer">
+          <i class="fa-solid fa-print"></i>
+          <span>Print</span>
+        </button>
+
+        <button id="shareWhatsAppBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs shadow-emerald-600/30 transition cursor-pointer">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span class="hidden sm:inline">WhatsApp</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Banner -->
+  <div id="alertBanner" class="hidden max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
+    <div class="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl p-3.5 flex items-center justify-between text-xs text-red-800 dark:text-red-300">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation text-red-600 dark:text-red-400 text-base shrink-0"></i>
+        <span id="alertBannerText" class="font-medium">Please review the required inputs.</span>
+      </div>
+      <button type="button" onclick="dismissAlert()" class="text-red-600 dark:text-red-400 hover:underline font-bold text-xs shrink-0 cursor-pointer">Dismiss</button>
+    </div>
+  </div>
+
+  <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Help & Rule Explainer Card -->
+    <div class="bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-cyan-500/10 dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-cyan-950/30 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+      <div class="flex items-start gap-3">
+        <div class="mt-0.5 text-emerald-600 dark:text-emerald-400 text-lg">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div>
+          <span class="font-bold text-slate-900 dark:text-white">Village Lending Rules:</span>
+          Interest is calculated as <strong>₹ per ₹100 per month</strong> (₹1.50 = 1.5%/month = 18% p.a.).
+          <strong>Chakra Vaddi:</strong> Interest capitalizes annually. Mid-period repayments clear accumulated interest first, then principal. 
+          <strong>Sada Vaddi:</strong> Simple interest applied to the active principal pool.
+        </div>
+      </div>
+      <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0 flex items-center gap-1.5">
+        <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
+        <span>Auto-saves last 10 calculations</span>
+      </div>
+    </div>
+
+    <!-- Main Workspace Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: CONSOLIDATED INPUT CONTROLS -->
+      <section class="lg:col-span-4 space-y-5 no-print">
+
+        <!-- Unified Loan Form Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+              Loan Details
+            </h2>
+            <button id="clearAllBtn" type="button" class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer">
+              <i class="fa-solid fa-rotate-left"></i>
+              Reset All
+            </button>
+          </div>
+
+          <!-- 1. Principal -->
+          <div>
+            <label for="principalInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+              Principal Amount (₹) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative rounded-xl shadow-xs">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold text-sm">₹</div>
+              <input type="number" id="principalInput" placeholder="Enter loan amount (e.g. 10000)" min="1" step="any" class="block w-full pl-8 pr-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500">
+            </div>
+            <p id="principalErr" class="hidden text-[11px] text-red-500 mt-1 font-medium">Please enter a valid positive principal amount.</p>
+          </div>
+
+          <!-- 2. Monthly Rate (in Rs per 100) -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label for="rateInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Interest Rate (₹ / ₹100 / mo) <span class="text-red-500">*</span>
+              </label>
+              <span id="annualRateBadge" class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                = 0.0% p.a.
+              </span>
+            </div>
+            <div class="relative rounded-xl shadow-xs">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-semibold text-xs">Rs</div>
+              <input type="number" id="rateInput" placeholder="e.g. 1.5, 2.0, 3.0" min="0.01" step="any" class="block w-full pl-9 pr-14 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 text-xs font-medium">/month</div>
+            </div>
+            <p id="rateErr" class="hidden text-[11px] text-red-500 mt-1 font-medium">Please enter a valid interest rate greater than 0.</p>
+            
+            <!-- Quick rate selector buttons -->
+            <div class="flex items-center gap-1.5 mt-2">
+              <span class="text-[11px] text-slate-400 font-medium">Presets:</span>
+              <button type="button" onclick="setQuickRate(1.0)" class="text-xs px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-slate-700 dark:text-slate-200 transition font-medium cursor-pointer">₹1.0</button>
+              <button type="button" onclick="setQuickRate(1.5)" class="text-xs px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-slate-700 dark:text-slate-200 transition font-medium cursor-pointer">₹1.5</button>
+              <button type="button" onclick="setQuickRate(2.0)" class="text-xs px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-slate-700 dark:text-slate-200 transition font-medium cursor-pointer">₹2.0</button>
+              <button type="button" onclick="setQuickRate(3.0)" class="text-xs px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-slate-700 dark:text-slate-200 transition font-medium cursor-pointer">₹3.0</button>
+            </div>
+          </div>
+
+          <!-- 3. Dates: Start Date & Settlement Date -->
+          <div class="space-y-3">
+            <div>
+              <label for="startDateInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                Loan Given Date <span class="text-red-500">*</span>
+              </label>
+              <input type="date" id="startDateInput" class="block w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-xs font-semibold text-slate-900 dark:text-white">
+              <p id="startDateErr" class="hidden text-[11px] text-red-500 mt-1 font-medium">Please select the loan start date.</p>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="endDateInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                  Settlement / Calculation Date <span class="text-red-500">*</span>
+                </label>
+                <button type="button" id="setTodayBtn" class="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 cursor-pointer">
+                  Set to Today
+                </button>
+              </div>
+              <input type="date" id="endDateInput" class="block w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-xs font-semibold text-slate-900 dark:text-white">
+              <p id="endDateErr" class="hidden text-[11px] text-red-500 mt-1 font-medium">Settlement date must be on or after the loan start date.</p>
+            </div>
+          </div>
+
+          <!-- 4. Chakra Vaddi Toggle -->
+          <div class="pt-2 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80">
+              <div class="pr-2">
+                <span class="text-xs font-bold text-slate-900 dark:text-white block" id="toggleLabelText">
+                  Chakra Vaddi (Compound Annually)
+                </span>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400" id="toggleSubLabel">
+                  Capitalizes interest every 12 months
+                </span>
+              </div>
+              
+              <label for="compoundToggle" class="relative inline-flex items-center cursor-pointer shrink-0">
+                <input type="checkbox" id="compoundToggle" checked class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-600"></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 5. Note / Borrower Tag -->
+          <div>
+            <label for="noteInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+              Borrower / Note (Optional)
+            </label>
+            <input type="text" id="noteInput" placeholder="e.g. Ramesh Reddy / Gold loan" class="block w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400">
+          </div>
+
+          <!-- 6. INTERIM REPAYMENTS SECTION (Placed directly above Calculate button) -->
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <i class="fa-solid fa-hand-holding-dollar text-emerald-600"></i>
+                  Interim Repayments
+                </h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">Partial payments made during the loan period</p>
+              </div>
+              <button id="addRepaymentBtn" type="button" class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition cursor-pointer">
+                <i class="fa-solid fa-plus"></i>
+                Add Payment
+              </button>
+            </div>
+
+            <!-- Dynamic Repayments List -->
+            <div id="repaymentsContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <!-- Rendered via JS -->
+            </div>
+            <p id="repaymentValidationErr" class="hidden text-[11px] text-red-500 font-medium">Please ensure repayment dates fall between the start and settlement dates with positive amounts.</p>
+          </div>
+
+          <!-- 7. CALCULATE & SAVE BUTTON -->
+          <div class="pt-2">
+            <button id="calculateBtn" type="button" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-calculator"></i>
+              Calculate &amp; Save
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: RESULTS, LEDGER, & BREAKDOWNS -->
+      <section class="lg:col-span-8 space-y-5">
+        
+        <!-- Summary Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs print-border">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Principal</div>
+            <div id="metricPrincipal" class="text-lg sm:text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">₹0.00</div>
+            <div id="metricStartDate" class="text-[11px] text-slate-400 mt-0.5 font-sans">--</div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs print-border">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Repaid</div>
+            <div id="metricTotalRepaid" class="text-lg sm:text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">₹0.00</div>
+            <div id="metricPaymentCount" class="text-[11px] text-slate-400 mt-0.5 font-sans">0 payments</div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs print-border">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Interest</div>
+            <div id="metricTotalInterest" class="text-lg sm:text-xl font-bold font-mono text-amber-600 dark:text-amber-400 mt-1">₹0.00</div>
+            <div id="metricRateInfo" class="text-[11px] text-slate-400 mt-0.5 font-sans">--</div>
+          </div>
+
+          <div class="bg-emerald-600 text-white p-4 rounded-2xl shadow-sm shadow-emerald-600/30 print-border">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-100">Final Net Due</div>
+            <div id="metricNetDue" class="text-xl sm:text-2xl font-black font-mono mt-1">₹0.00</div>
+            <div id="metricDurationBadge" class="text-[11px] text-emerald-100/90 font-medium truncate mt-0.5 font-sans">--</div>
+          </div>
+        </div>
+
+        <!-- Breakdown & Ledger Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden print-border">
+          
+          <!-- View Switcher Header -->
+          <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex flex-wrap justify-between items-center gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-emerald-600"></i>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Amortization &amp; Settlement Ledger</h3>
+              </div>
+              <p id="tableSubtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Fill in the loan details and click "Calculate &amp; Save"
+              </p>
+            </div>
+            
+            <div class="flex items-center gap-2 no-print">
+              <!-- Tab Switcher -->
+              <div class="inline-flex p-1 bg-slate-100 dark:bg-slate-700 rounded-xl text-xs font-semibold">
+                <button type="button" id="tabYearlyBtn" class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs transition cursor-pointer">
+                  <i class="fa-solid fa-calendar-days mr-1"></i>Year-Wise
+                </button>
+                <button type="button" id="tabDetailedBtn" class="px-3 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                  <i class="fa-solid fa-list-check mr-1"></i>Detailed Events
+                </button>
+              </div>
+
+              <!-- Export CSV -->
+              <button id="exportCsvBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">
+                <i class="fa-solid fa-file-csv"></i>
+                CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 1: Year-Wise Breakdown Table -->
+          <div id="yearlyViewContainer" class="overflow-x-auto">
+            <table class="w-full text-left text-xs sm:text-sm border-collapse">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
+                  <th class="py-3 px-4">Period / Year</th>
+                  <th class="py-3 px-4">Dates</th>
+                  <th class="py-3 px-4 text-right">Opening (₹)</th>
+                  <th class="py-3 px-4 text-center">Duration</th>
+                  <th class="py-3 px-4 text-right">Interest (₹)</th>
+                  <th class="py-3 px-4 text-right">Repayment (₹)</th>
+                  <th class="py-3 px-4 text-right">Closing (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="yearlyTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/60 font-mono text-xs">
+                <tr>
+                  <td colspan="7" class="text-center py-12 text-slate-400 font-sans">
+                    <i class="fa-solid fa-calculator text-2xl text-slate-300 dark:text-slate-600 block mb-2"></i>
+                    No calculation yet. Fill in Principal, Rate, and Dates, then click <strong>Calculate &amp; Save</strong>.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- TAB 2: Detailed Transaction Events Table -->
+          <div id="detailedViewContainer" class="overflow-x-auto hidden">
+            <table class="w-full text-left text-xs sm:text-sm border-collapse">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
+                  <th class="py-3 px-4">Event Description</th>
+                  <th class="py-3 px-4">Dates</th>
+                  <th class="py-3 px-4 text-right">Opening (₹)</th>
+                  <th class="py-3 px-4 text-center">Duration</th>
+                  <th class="py-3 px-4 text-right">Interest Added (₹)</th>
+                  <th class="py-3 px-4 text-right">Repayment Deducted (₹)</th>
+                  <th class="py-3 px-4 text-right">Closing Balance (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="detailedTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/60 font-mono text-xs">
+                <tr>
+                  <td colspan="7" class="text-center py-12 text-slate-400 font-sans">
+                    <i class="fa-solid fa-calendar-check text-2xl text-slate-300 dark:text-slate-600 block mb-2"></i>
+                    Detailed transaction event ledger will populate once calculation is run.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer Summary -->
+          <div class="p-4 bg-slate-50 dark:bg-slate-900/40 border-t border-slate-200 dark:border-slate-700 flex flex-wrap justify-between items-center text-xs text-slate-600 dark:text-slate-400 gap-2">
+            <div>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">Total Duration:</span>
+              <span id="footerDuration" class="font-mono ml-1 font-semibold text-slate-900 dark:text-white">--</span>
+            </div>
+            <div>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">Net Outstanding Amount:</span>
+              <span id="footerNetDue" class="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400 ml-1">₹0.00</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- History Drawer Backdrop & Drawer -->
+    <div id="historyBackdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 hidden transition-opacity"></div>
+    
+    <aside id="historyDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[440px] bg-white dark:bg-slate-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+      <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
+          <h3 class="font-bold text-slate-900 dark:text-white text-base">Calculation History</h3>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-mono" id="historyCounterTag">0/10</span>
+        </div>
+        <button id="closeHistoryBtn" type="button" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs">
+        <span class="text-slate-500 dark:text-slate-400">Stores last 10 calculations with repayments</span>
+        <button id="clearAllHistoryBtn" type="button" class="text-red-500 hover:text-red-700 font-semibold hover:underline cursor-pointer">
+          Clear All History
+        </button>
+      </div>
+
+      <!-- History List Items -->
+      <div id="historyListContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+        <!-- Rendered items here -->
+      </div>
+    </aside>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 text-xs font-semibold">
+      <i class="fa-solid fa-circle-check text-emerald-400" id="toastIcon"></i>
+      <span id="toastMsg">Notification</span>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-4 mt-8 no-print text-center text-xs text-slate-500 dark:text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>Village Loan &amp; Interest Calculator • Ready for GitHub Pages</p>
+      <p>Supports Chakra Vaddi &amp; Sada Vaddi with Complete Interim Payment Tracking</p>
+    </div>
+  </footer>
+
+  <!-- Application Logic & Engine -->
+  <script>
+    const appState = {
+      principal: 0,
+      monthlyRate: 0,
+      startDate: '',
+      endDate: '',
+      isCompound: true,
+      note: '',
+      repayments: [], // Array of { id, date, amount }
+      yearlyRows: [],
+      detailedRows: [],
+      summary: {
+        principal: 0,
+        totalRepaid: 0,
+        totalInterest: 0,
+        netDue: 0,
+        duration: '--'
+      }
+    };
+
+    const HISTORY_STORAGE_KEY = 'vaddi_calculator_history_v5';
+
+    // DOM Elements
+    const principalInput = document.getElementById('principalInput');
+    const rateInput = document.getElementById('rateInput');
+    const annualRateBadge = document.getElementById('annualRateBadge');
+    const startDateInput = document.getElementById('startDateInput');
+    const endDateInput = document.getElementById('endDateInput');
+    const setTodayBtn = document.getElementById('setTodayBtn');
+    const compoundToggle = document.getElementById('compoundToggle');
+    const toggleLabelText = document.getElementById('toggleLabelText');
+    const toggleSubLabel = document.getElementById('toggleSubLabel');
+    const noteInput = document.getElementById('noteInput');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const addRepaymentBtn = document.getElementById('addRepaymentBtn');
+    const repaymentsContainer = document.getElementById('repaymentsContainer');
+    const repaymentValidationErr = document.getElementById('repaymentValidationErr');
+
+    // Validation Elements
+    const principalErr = document.getElementById('principalErr');
+    const rateErr = document.getElementById('rateErr');
+    const startDateErr = document.getElementById('startDateErr');
+    const endDateErr = document.getElementById('endDateErr');
+    const alertBanner = document.getElementById('alertBanner');
+    const alertBannerText = document.getElementById('alertBannerText');
+
+    // Summary Metric Elements
+    const metricPrincipal = document.getElementById('metricPrincipal');
+    const metricStartDate = document.getElementById('metricStartDate');
+    const metricTotalRepaid = document.getElementById('metricTotalRepaid');
+    const metricPaymentCount = document.getElementById('metricPaymentCount');
+    const metricTotalInterest = document.getElementById('metricTotalInterest');
+    const metricRateInfo = document.getElementById('metricRateInfo');
+    const metricNetDue = document.getElementById('metricNetDue');
+    const metricDurationBadge = document.getElementById('metricDurationBadge');
+    const footerDuration = document.getElementById('footerDuration');
+    const footerNetDue = document.getElementById('footerNetDue');
+    const tableSubtitle = document.getElementById('tableSubtitle');
+
+    // Table Containers & Switchers
+    const tabYearlyBtn = document.getElementById('tabYearlyBtn');
+    const tabDetailedBtn = document.getElementById('tabDetailedBtn');
+    const yearlyViewContainer = document.getElementById('yearlyViewContainer');
+    const detailedViewContainer = document.getElementById('detailedViewContainer');
+    const yearlyTableBody = document.getElementById('yearlyTableBody');
+    const detailedTableBody = document.getElementById('detailedTableBody');
+
+    // History & Action Elements
+    const openHistoryBtn = document.getElementById('openHistoryBtn');
+    const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+    const clearAllHistoryBtn = document.getElementById('clearAllHistoryBtn');
+    const historyBackdrop = document.getElementById('historyBackdrop');
+    const historyDrawer = document.getElementById('historyDrawer');
+    const historyListContainer = document.getElementById('historyListContainer');
+    const historyBadge = document.getElementById('historyBadge');
+    const historyCounterTag = document.getElementById('historyCounterTag');
+    const shareWhatsAppBtn = document.getElementById('shareWhatsAppBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const printBtn = document.getElementById('printBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+
+    // Safe UTC Date Utilities
+    function parseUTCDate(dateStr) {
+      if (!dateStr || typeof dateStr !== 'string') return null;
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return null;
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      return new Date(Date.UTC(y, m, d));
+    }
+
+    function formatUTCDate(d) {
+      if (!d) return '';
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return '--';
+      const d = parseUTCDate(dateStr);
+      if (!d) return dateStr;
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${day} ${monthNames[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+    }
+
+    function formatINR(val) {
+      if (val === null || val === undefined || isNaN(val)) return '₹0.00';
+      return '₹' + Number(val).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function getTodayString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function showToast(msg, isErr = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.textContent = msg;
+      toastIcon.className = isErr ? 'fa-solid fa-circle-exclamation text-amber-400' : 'fa-solid fa-circle-check text-emerald-400';
+
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-20');
+      }, 2600);
+    }
+
+    function showAlertBanner(msg) {
+      alertBannerText.textContent = msg;
+      alertBanner.classList.remove('hidden');
+    }
+
+    function dismissAlert() {
+      alertBanner.classList.add('hidden');
+    }
+
+    function setQuickRate(val) {
+      rateInput.value = val;
+      updateRateBadge();
+      checkAutoRecalculate();
+    }
+
+    function updateRateBadge() {
+      const r = parseFloat(rateInput.value);
+      if (!isNaN(r) && r > 0) {
+        const annual = r * 12;
+        annualRateBadge.textContent = `= ${annual.toFixed(2).replace(/\.00$/, '')}% p.a.`;
+      } else {
+        annualRateBadge.textContent = '= 0.0% p.a.';
+      }
+    }
+
+    // Precise Calendar Duration Calculator
+    function computeCalendarDuration(startDateStr, endDateStr) {
+      const d1 = parseUTCDate(startDateStr);
+      const d2 = parseUTCDate(endDateStr);
+      if (!d1 || !d2 || d2 < d1) {
+        return { years: 0, months: 0, days: 0, totalMonths: 0, label: '0d' };
+      }
+
+      let y1 = d1.getUTCFullYear();
+      let m1 = d1.getUTCMonth();
+      let day1 = d1.getUTCDate();
+
+      let y2 = d2.getUTCFullYear();
+      let m2 = d2.getUTCMonth();
+      let day2 = d2.getUTCDate();
+
+      let years = y2 - y1;
+      let months = m2 - m1;
+      let days = day2 - day1;
+
+      if (days < 0) {
+        months -= 1;
+        const prevMonthDate = new Date(Date.UTC(y2, m2, 0));
+        days += prevMonthDate.getUTCDate();
+      }
+
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+
+      const totalMonths = (years * 12) + months + (days / 30);
+      const parts = [];
+      if (years > 0) parts.push(`${years}y`);
+      if (months > 0) parts.push(`${months}m`);
+      if (days > 0 || parts.length === 0) parts.push(`${days}d`);
+
+      return {
+        years,
+        months,
+        days,
+        totalMonths,
+        label: parts.join(' ')
+      };
+    }
+
+    // Interim Repayments Synchronization & DOM Rendering
+    function syncRepaymentsFromDOM() {
+      const dateInputs = document.querySelectorAll('.rep-date-input');
+      const amtInputs = document.querySelectorAll('.rep-amt-input');
+
+      dateInputs.forEach(input => {
+        const idx = parseInt(input.dataset.idx, 10);
+        if (appState.repayments[idx]) {
+          appState.repayments[idx].date = input.value;
+        }
+      });
+
+      amtInputs.forEach(input => {
+        const idx = parseInt(input.dataset.idx, 10);
+        if (appState.repayments[idx]) {
+          const val = parseFloat(input.value);
+          appState.repayments[idx].amount = !isNaN(val) ? val : null;
+        }
+      });
+    }
+
+    function renderRepayments() {
+      repaymentsContainer.innerHTML = '';
+      if (!appState.repayments || appState.repayments.length === 0) {
+        repaymentsContainer.innerHTML = `
+          <div class="text-center py-3 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 text-xs">
+            No interim payments. Click "Add Payment" above if any repayment was made.
+          </div>
+        `;
+        return;
+      }
+
+      appState.repayments.forEach((rep, index) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-slate-200 dark:border-slate-700';
+        row.innerHTML = `
+          <div class="flex-1">
+            <span class="text-[9px] uppercase tracking-wider text-slate-400 font-bold block">Payment ${index + 1} Date</span>
+            <input type="date" value="${rep.date || ''}" data-idx="${index}" class="rep-date-input text-xs font-semibold w-full bg-transparent border-0 text-slate-900 dark:text-white p-0 focus:ring-0">
+          </div>
+          <div class="w-28 sm:w-32">
+            <span class="text-[9px] uppercase tracking-wider text-slate-400 font-bold block">Amount (₹)</span>
+            <input type="number" placeholder="Amount" value="${rep.amount !== null && !isNaN(rep.amount) ? rep.amount : ''}" data-idx="${index}" min="1" step="any" class="rep-amt-input text-xs font-mono font-bold w-full bg-transparent border-0 text-emerald-600 dark:text-emerald-400 p-0 focus:ring-0">
+          </div>
+          <button type="button" onclick="removeRepaymentRow(${index})" class="text-slate-400 hover:text-red-500 p-1.5 transition cursor-pointer" title="Delete payment">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        `;
+        repaymentsContainer.appendChild(row);
+      });
+
+      // Bind input events for live syncing
+      document.querySelectorAll('.rep-date-input').forEach(el => {
+        el.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.idx, 10);
+          if (appState.repayments[idx]) {
+            appState.repayments[idx].date = e.target.value;
+          }
+          checkAutoRecalculate();
+        });
+      });
+
+      document.querySelectorAll('.rep-amt-input').forEach(el => {
+        el.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.idx, 10);
+          if (appState.repayments[idx]) {
+            const v = parseFloat(e.target.value);
+            appState.repayments[idx].amount = !isNaN(v) ? v : null;
+          }
+          checkAutoRecalculate();
+        });
+      });
+    }
+
+    function addRepaymentRow(dateStr = '', amountVal = null) {
+      syncRepaymentsFromDOM();
+      appState.repayments.push({
+        id: Date.now() + Math.random(),
+        date: dateStr,
+        amount: amountVal
+      });
+      renderRepayments();
+    }
+
+    function removeRepaymentRow(idx) {
+      syncRepaymentsFromDOM();
+      appState.repayments.splice(idx, 1);
+      renderRepayments();
+      checkAutoRecalculate();
+    }
+
+    function checkAutoRecalculate() {
+      const p = parseFloat(principalInput.value);
+      const r = parseFloat(rateInput.value);
+      const s = startDateInput.value;
+      const e = endDateInput.value;
+      if (!isNaN(p) && p > 0 && !isNaN(r) && r > 0 && s && e && e >= s) {
+        runCalculation(false); // Seamless update without polluting history
+      }
+    }
+
+    // Core Calculation Engine & Edge-Case Guardrails
+    function runCalculation(saveToHistory = true) {
+      syncRepaymentsFromDOM();
+      dismissAlert();
+
+      principalErr.classList.add('hidden');
+      rateErr.classList.add('hidden');
+      startDateErr.classList.add('hidden');
+      endDateErr.classList.add('hidden');
+      repaymentValidationErr.classList.add('hidden');
+
+      const pVal = parseFloat(principalInput.value);
+      const rVal = parseFloat(rateInput.value);
+      const sDateStr = startDateInput.value;
+      const eDateStr = endDateInput.value;
+      const isCompound = compoundToggle.checked;
+      const noteVal = noteInput.value.trim();
+
+      let hasError = false;
+
+      // 1. Validate Principal
+      if (isNaN(pVal) || pVal <= 0) {
+        principalErr.classList.remove('hidden');
+        hasError = true;
+      }
+
+      // 2. Validate Rate
+      if (isNaN(rVal) || rVal <= 0) {
+        rateErr.classList.remove('hidden');
+        hasError = true;
+      }
+
+      // 3. Validate Start Date
+      if (!sDateStr) {
+        startDateErr.classList.remove('hidden');
+        hasError = true;
+      }
+
+      // 4. Validate End Date
+      if (!eDateStr) {
+        endDateErr.textContent = 'Please select a valid settlement date.';
+        endDateErr.classList.remove('hidden');
+        hasError = true;
+      }
+
+      if (hasError) {
+        showAlertBanner('Please provide all required parameters highlighted in red.');
+        return false;
+      }
+
+      const dStart = parseUTCDate(sDateStr);
+      const dEnd = parseUTCDate(eDateStr);
+
+      // Edge case: Settlement earlier than start
+      if (dEnd < dStart) {
+        endDateErr.textContent = 'Settlement date cannot be earlier than start date.';
+        endDateErr.classList.remove('hidden');
+        showAlertBanner('Settlement date must be on or after the Loan Given Date.');
+        return false;
+      }
+
+      // 5. Validate Repayments
+      const rawRepayments = appState.repayments.filter(r => r.date || (r.amount !== null && !isNaN(r.amount)));
+      let invalidRepaymentFound = false;
+
+      rawRepayments.forEach(r => {
+        if (!r.date || isNaN(r.amount) || r.amount <= 0 || r.date < sDateStr || r.date > eDateStr) {
+          invalidRepaymentFound = true;
+        }
+      });
+
+      if (invalidRepaymentFound) {
+        repaymentValidationErr.classList.remove('hidden');
+        showAlertBanner('One or more repayments has an invalid date (outside loan tenure) or invalid amount.');
+        return false;
+      }
+
+      try {
+        // Sort valid repayments chronologically
+        const validRepayments = rawRepayments
+          .map(r => ({ id: r.id, date: r.date, amount: Number(r.amount) }))
+          .sort((a, b) => parseUTCDate(a.date) - parseUTCDate(b.date));
+
+        const detailedRows = [];
+        let totalInterestCalculated = 0;
+        let totalRepaymentsCalculated = 0;
+
+        if (isCompound) {
+          // ==========================================
+          // MODE A: CHAKRA VADDI (ANNUAL COMPOUNDING)
+          // ==========================================
+          const timelinePoints = [{ date: sDateStr, type: 'START' }];
+
+          let yearCounter = 1;
+          while (true) {
+            const nextAnniv = new Date(Date.UTC(dStart.getUTCFullYear() + yearCounter, dStart.getUTCMonth(), dStart.getUTCDate()));
+            const nextAnnivStr = formatUTCDate(nextAnniv);
+            if (nextAnnivStr > eDateStr) break;
+            timelinePoints.push({
+              date: nextAnnivStr,
+              type: 'ANNIVERSARY',
+              yearNumber: yearCounter
+            });
+            yearCounter++;
+          }
+
+          if (!timelinePoints.some(pt => pt.date === eDateStr)) {
+            timelinePoints.push({
+              date: eDateStr,
+              type: 'SETTLEMENT'
+            });
+          }
+
+          timelinePoints.sort((a, b) => parseUTCDate(a.date) - parseUTCDate(b.date));
+
+          const processedPaymentIds = new Set();
+          let currentOpening = pVal;
+
+          for (let i = 0; i < timelinePoints.length - 1; i++) {
+            const periodStart = timelinePoints[i].date;
+            const periodEnd = timelinePoints[i + 1].date;
+            const isSettlementPeriod = (periodEnd === eDateStr);
+
+            // Group payments strictly within this annual interval
+            const periodPayments = validRepayments.filter(r => {
+              if (processedPaymentIds.has(r.id)) return false;
+              return r.date > periodStart && r.date <= periodEnd;
+            });
+
+            if (periodPayments.length === 0) {
+              const dur = computeCalendarDuration(periodStart, periodEnd);
+              const interest = currentOpening * (rVal / 100) * dur.totalMonths;
+              totalInterestCalculated += interest;
+
+              const closing = currentOpening + interest;
+              const eventTitle = isSettlementPeriod && periodEnd === eDateStr && timelinePoints[i+1].type === 'SETTLEMENT'
+                ? 'Final Settlement'
+                : `Year ${timelinePoints[i+1].yearNumber} Compounding`;
+
+              detailedRows.push({
+                event: eventTitle,
+                badge: isSettlementPeriod && timelinePoints[i+1].type === 'SETTLEMENT'
+                  ? `<span class="bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Settlement</span>`
+                  : `<span class="bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Compounded</span>`,
+                startDate: periodStart,
+                endDate: periodEnd,
+                opening: currentOpening,
+                duration: dur.label,
+                interest: interest,
+                repayment: 0,
+                closing: closing
+              });
+
+              currentOpening = closing;
+            } else {
+              let subStart = periodStart;
+              let subOpening = currentOpening;
+
+              for (let pIdx = 0; pIdx < periodPayments.length; pIdx++) {
+                const rep = periodPayments[pIdx];
+                processedPaymentIds.add(rep.id);
+
+                const durToPayment = computeCalendarDuration(subStart, rep.date);
+                const interestToPayment = subOpening * (rVal / 100) * durToPayment.totalMonths;
+                totalInterestCalculated += interestToPayment;
+                totalRepaymentsCalculated += rep.amount;
+
+                const closingAfterPayment = subOpening + interestToPayment - rep.amount;
+
+                detailedRows.push({
+                  event: `Partial Repayment`,
+                  badge: `<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Paid -${formatINR(rep.amount)}</span>`,
+                  startDate: subStart,
+                  endDate: rep.date,
+                  opening: subOpening,
+                  duration: durToPayment.label,
+                  interest: interestToPayment,
+                  repayment: rep.amount,
+                  closing: closingAfterPayment
+                });
+
+                subOpening = closingAfterPayment;
+                subStart = rep.date;
+              }
+
+              if (subStart < periodEnd) {
+                const durToEnd = computeCalendarDuration(subStart, periodEnd);
+                const interestToEnd = subOpening * (rVal / 100) * durToEnd.totalMonths;
+                totalInterestCalculated += interestToEnd;
+
+                const closingAtPeriodEnd = subOpening + interestToEnd;
+                const eventTitle = isSettlementPeriod && periodEnd === eDateStr && timelinePoints[i+1].type === 'SETTLEMENT'
+                  ? 'Final Settlement'
+                  : `Year ${timelinePoints[i+1].yearNumber} Compounding`;
+
+                detailedRows.push({
+                  event: eventTitle,
+                  badge: isSettlementPeriod && timelinePoints[i+1].type === 'SETTLEMENT'
+                    ? `<span class="bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Settlement</span>`
+                    : `<span class="bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Compounded</span>`,
+                  startDate: subStart,
+                  endDate: periodEnd,
+                  opening: subOpening,
+                  duration: durToEnd.label,
+                  interest: interestToEnd,
+                  repayment: 0,
+                  closing: closingAtPeriodEnd
+                });
+
+                currentOpening = closingAtPeriodEnd;
+              } else {
+                currentOpening = subOpening;
+              }
+            }
+          }
+
+        } else {
+          // ==========================================
+          // MODE B: SADA VADDI (SIMPLE INTEREST)
+          // ==========================================
+          const eventPoints = [sDateStr, ...validRepayments.map(r => r.date), eDateStr];
+          const uniquePoints = Array.from(new Set(eventPoints)).sort((a, b) => parseUTCDate(a) - parseUTCDate(b));
+
+          let runningBalance = pVal;
+          const processedPaymentIds = new Set();
+
+          for (let i = 0; i < uniquePoints.length - 1; i++) {
+            const segStart = uniquePoints[i];
+            const segEnd = uniquePoints[i + 1];
+            const segDur = computeCalendarDuration(segStart, segEnd);
+
+            const segInterest = runningBalance * (rVal / 100) * segDur.totalMonths;
+            totalInterestCalculated += segInterest;
+
+            const repMatches = validRepayments.filter(r => r.date === segEnd && !processedPaymentIds.has(r.id));
+            let segPayment = 0;
+            repMatches.forEach(r => {
+              processedPaymentIds.add(r.id);
+              segPayment += r.amount;
+            });
+            totalRepaymentsCalculated += segPayment;
+
+            const segClosing = (runningBalance + segInterest) - segPayment;
+
+            detailedRows.push({
+              event: segPayment > 0 ? 'Repayment & Simple Interest' : 'Simple Interest Period',
+              badge: segPayment > 0 
+                ? `<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Paid -${formatINR(segPayment)}</span>`
+                : `<span class="bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Flat Interest</span>`,
+              startDate: segStart,
+              endDate: segEnd,
+              opening: runningBalance,
+              duration: segDur.label,
+              interest: segInterest,
+              repayment: segPayment,
+              closing: segClosing
+            });
+
+            runningBalance = segClosing;
+          }
+        }
+
+        const yearlyRows = generateYearlyBreakdown(pVal, rVal, sDateStr, eDateStr, isCompound, validRepayments, detailedRows);
+
+        let finalNetDue = 0;
+        if (detailedRows.length > 0) {
+          finalNetDue = detailedRows[detailedRows.length - 1].closing;
+        } else {
+          finalNetDue = pVal;
+        }
+
+        const totalOverallDuration = computeCalendarDuration(sDateStr, eDateStr);
+
+        // Update Global State
+        appState.principal = pVal;
+        appState.monthlyRate = rVal;
+        appState.startDate = sDateStr;
+        appState.endDate = eDateStr;
+        appState.isCompound = isCompound;
+        appState.note = noteVal;
+        appState.detailedRows = detailedRows;
+        appState.yearlyRows = yearlyRows;
+        appState.summary = {
+          principal: pVal,
+          totalRepaid: totalRepaymentsCalculated,
+          totalInterest: totalInterestCalculated,
+          netDue: finalNetDue,
+          duration: totalOverallDuration.label
+        };
+
+        // Render UI
+        renderSummaryUI();
+        renderYearlyTable(yearlyRows);
+        renderDetailedTable(detailedRows);
+
+        if (saveToHistory) {
+          const repaymentsSnapshot = appState.repayments
+            .filter(r => r.date && !isNaN(r.amount) && r.amount > 0)
+            .map(r => ({
+              id: r.id,
+              date: r.date,
+              amount: Number(r.amount)
+            }));
+
+          saveHistoryRecord({
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            principal: pVal,
+            monthlyRate: rVal,
+            isCompound: isCompound,
+            startDate: sDateStr,
+            endDate: eDateStr,
+            note: noteVal,
+            repayments: repaymentsSnapshot,
+            summary: { ...appState.summary }
+          });
+        }
+
+        showToast('Calculation completed successfully!');
+        return true;
+
+      } catch (err) {
+        console.error('Calculation error:', err);
+        showAlertBanner('An error occurred during calculation. Please check dates and numbers.');
+        return false;
+      }
+    }
+
+    // Consolidated Year-Wise Table Engine
+    function generateYearlyBreakdown(principal, monthlyRate, startDateStr, endDateStr, isCompound, payments, detailedRows) {
+      const yearly = [];
+      const dStart = parseUTCDate(startDateStr);
+      const dEnd = parseUTCDate(endDateStr);
+
+      let yr = 1;
+
+      while (true) {
+        const segStart = new Date(Date.UTC(dStart.getUTCFullYear() + (yr - 1), dStart.getUTCMonth(), dStart.getUTCDate()));
+        const segEnd = new Date(Date.UTC(dStart.getUTCFullYear() + yr, dStart.getUTCMonth(), dStart.getUTCDate()));
+
+        if (segStart >= dEnd) break;
+
+        const effectiveEnd = segEnd <= dEnd ? segEnd : dEnd;
+        const isFull12Months = segEnd <= dEnd;
+        const startStr = formatUTCDate(segStart);
+        const endStr = formatUTCDate(effectiveEnd);
+        const dur = computeCalendarDuration(startStr, endStr);
+
+        const relevantDetailed = detailedRows.filter(r => r.startDate >= startStr && r.endDate <= endStr);
+
+        let yrOpening = 0;
+        let yrInterest = 0;
+        let yrRepaid = 0;
+        let yrClosing = 0;
+
+        if (relevantDetailed.length > 0) {
+          yrOpening = relevantDetailed[0].opening;
+          yrInterest = relevantDetailed.reduce((sum, r) => sum + r.interest, 0);
+          yrRepaid = relevantDetailed.reduce((sum, r) => sum + r.repayment, 0);
+          yrClosing = relevantDetailed[relevantDetailed.length - 1].closing;
+        } else {
+          yrOpening = yearly.length > 0 ? yearly[yearly.length - 1].closing : principal;
+          yrInterest = yrOpening * (monthlyRate / 100) * dur.totalMonths;
+          yrRepaid = 0;
+          yrClosing = yrOpening + yrInterest;
+        }
+
+        yearly.push({
+          yearLabel: isFull12Months ? `Year ${yr}` : `Running (Year ${yr})`,
+          badge: isFull12Months
+            ? `<span class="bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">12 Months</span>`
+            : `<span class="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Partial Period</span>`,
+          startDate: startStr,
+          endDate: endStr,
+          opening: yrOpening,
+          duration: dur.label,
+          interest: yrInterest,
+          repayment: yrRepaid,
+          closing: yrClosing
+        });
+
+        if (!isFull12Months) break;
+        yr++;
+      }
+
+      return yearly;
+    }
+
+    // UI Renderers
+    function renderSummaryUI() {
+      metricPrincipal.textContent = formatINR(appState.summary.principal);
+      metricStartDate.textContent = formatDateDisplay(appState.startDate);
+
+      metricTotalRepaid.textContent = formatINR(appState.summary.totalRepaid);
+      const repCount = appState.repayments.filter(r => r.amount > 0).length;
+      metricPaymentCount.textContent = `${repCount} payment${repCount === 1 ? '' : 's'}`;
+
+      metricTotalInterest.textContent = formatINR(appState.summary.totalInterest);
+      const annualPct = (appState.monthlyRate * 12).toFixed(1);
+      metricRateInfo.textContent = `₹${appState.monthlyRate}/mo (${annualPct}% p.a.)`;
+
+      metricNetDue.textContent = formatINR(appState.summary.netDue);
+      metricDurationBadge.textContent = `${appState.summary.duration} elapsed`;
+
+      footerDuration.textContent = appState.summary.duration;
+      footerNetDue.textContent = formatINR(appState.summary.netDue);
+
+      const modeName = appState.isCompound ? 'Chakra Vaddi (Compound Annually)' : 'Sada Vaddi (Simple Interest)';
+      tableSubtitle.textContent = `${modeName} from ${formatDateDisplay(appState.startDate)} to ${formatDateDisplay(appState.endDate)} ${appState.note ? '• ' + appState.note : ''}`;
+    }
+
+    function renderYearlyTable(rows) {
+      yearlyTableBody.innerHTML = '';
+      if (!rows || rows.length === 0) {
+        yearlyTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-sans">No yearly periods generated.</td></tr>`;
+        return;
+      }
+
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-sans font-bold text-slate-900 dark:text-white">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span>${r.yearLabel}</span>
+              ${r.badge}
+            </div>
+          </td>
+          <td class="py-3 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">
+            ${formatDateDisplay(r.startDate)} <span class="text-slate-300 dark:text-slate-600">→</span> ${formatDateDisplay(r.endDate)}
+          </td>
+          <td class="py-3 px-4 text-right font-medium text-slate-800 dark:text-slate-200">
+            ${formatINR(r.opening)}
+          </td>
+          <td class="py-3 px-4 text-center font-sans text-xs text-slate-600 dark:text-slate-300">
+            ${r.duration}
+          </td>
+          <td class="py-3 px-4 text-right font-semibold text-amber-600 dark:text-amber-400">
+            +${formatINR(r.interest)}
+          </td>
+          <td class="py-3 px-4 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+            ${r.repayment > 0 ? '-' + formatINR(r.repayment) : '—'}
+          </td>
+          <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-white">
+            ${formatINR(r.closing)}
+          </td>
+        `;
+        yearlyTableBody.appendChild(tr);
+      });
+    }
+
+    function renderDetailedTable(rows) {
+      detailedTableBody.innerHTML = '';
+      if (!rows || rows.length === 0) {
+        detailedTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-sans">No event periods generated.</td></tr>`;
+        return;
+      }
+
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-sans font-medium text-slate-900 dark:text-white">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span>${r.event}</span>
+              ${r.badge}
+            </div>
+          </td>
+          <td class="py-3 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">
+            ${formatDateDisplay(r.startDate)} <span class="text-slate-300 dark:text-slate-600">→</span> ${formatDateDisplay(r.endDate)}
+          </td>
+          <td class="py-3 px-4 text-right font-medium text-slate-800 dark:text-slate-200">
+            ${formatINR(r.opening)}
+          </td>
+          <td class="py-3 px-4 text-center font-sans text-xs text-slate-600 dark:text-slate-300">
+            ${r.duration}
+          </td>
+          <td class="py-3 px-4 text-right font-semibold text-amber-600 dark:text-amber-400">
+            +${formatINR(r.interest)}
+          </td>
+          <td class="py-3 px-4 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+            ${r.repayment > 0 ? '-' + formatINR(r.repayment) : '—'}
+          </td>
+          <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-white">
+            ${formatINR(r.closing)}
+          </td>
+        `;
+        detailedTableBody.appendChild(tr);
+      });
+    }
+
+    // History Storage & Management (Last 10 items)
+    function getStoredHistory() {
+      try {
+        const data = localStorage.getItem(HISTORY_STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        console.error('History parse error:', e);
+        return [];
+      }
+    }
+
+    function saveHistoryRecord(record) {
+      try {
+        let history = getStoredHistory();
+        history.unshift(record);
+        if (history.length > 10) history = history.slice(0, 10);
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+        updateHistoryUI();
+      } catch (e) {
+        console.error('Failed to save to localStorage:', e);
+      }
+    }
+
+    function deleteHistoryRecord(id) {
+      let history = getStoredHistory().filter(h => h.id !== id);
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+      updateHistoryUI();
+      showToast('Entry removed from history');
+    }
+
+    function clearEntireHistory() {
+      localStorage.removeItem(HISTORY_STORAGE_KEY);
+      updateHistoryUI();
+      showToast('All history cleared');
+    }
+
+    function restoreHistoryEntry(id) {
+      const history = getStoredHistory();
+      const item = history.find(h => h.id === id);
+      if (!item) return;
+
+      principalInput.value = item.principal;
+      rateInput.value = item.monthlyRate;
+      updateRateBadge();
+      startDateInput.value = item.startDate;
+      endDateInput.value = item.endDate;
+      compoundToggle.checked = item.isCompound !== false;
+      noteInput.value = item.note || '';
+
+      if (compoundToggle.checked) {
+        toggleLabelText.textContent = 'Chakra Vaddi (Compound Annually)';
+        toggleSubLabel.textContent = 'Capitalizes interest every 12 months';
+      } else {
+        toggleLabelText.textContent = 'Sada Vaddi (Simple Interest)';
+        toggleSubLabel.textContent = 'Flat monthly rate on principal';
+      }
+
+      // Restores repayment items completely
+      appState.repayments = Array.isArray(item.repayments) ? JSON.parse(JSON.stringify(item.repayments)) : [];
+      renderRepayments();
+
+      closeHistoryModal();
+      runCalculation(false); // Restore without duplicate history record
+      showToast('History entry restored with all repayments');
+    }
+
+    function updateHistoryUI() {
+      const history = getStoredHistory();
+      const count = history.length;
+
+      historyCounterTag.textContent = `${count}/10`;
+      if (count > 0) {
+        historyBadge.textContent = count;
+        historyBadge.classList.remove('hidden');
+      } else {
+        historyBadge.classList.add('hidden');
+      }
+
+      historyListContainer.innerHTML = '';
+      if (count === 0) {
+        historyListContainer.innerHTML = `
+          <div class="text-center py-12 text-slate-400">
+            <i class="fa-solid fa-clock-rotate-left text-2xl text-slate-300 dark:text-slate-600 block mb-2"></i>
+            No saved calculations yet. Run a calculation to automatically save it here.
+          </div>
+        `;
+        return;
+      }
+
+      history.forEach(item => {
+        const d = new Date(item.timestamp);
+        const timeStr = isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+        const reps = Array.isArray(item.repayments) ? item.repayments.filter(r => r.amount > 0) : [];
+        let repsHTML = '';
+        if (reps.length > 0) {
+          const repSummaryText = reps.map(r => `${formatDateDisplay(r.date)}: -${formatINR(r.amount)}`).join('; ');
+          repsHTML = `
+            <div class="text-[11px] bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-1 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60 flex items-center gap-1.5 flex-wrap">
+              <i class="fa-solid fa-receipt text-[10px]"></i>
+              <span class="font-bold">${reps.length} Repayment${reps.length > 1 ? 's' : ''}:</span>
+              <span class="font-mono text-[10px]">${repSummaryText}</span>
+            </div>
+          `;
+        } else {
+          repsHTML = `
+            <div class="text-[10px] text-slate-400 font-sans">
+              No interim payments
+            </div>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'p-3.5 bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2 hover:border-emerald-500/50 transition cursor-pointer';
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-[10px] font-mono text-slate-400 block">${timeStr}</span>
+              <span class="text-sm font-bold text-slate-900 dark:text-white font-mono">${formatINR(item.principal)} @ ₹${item.monthlyRate}/mo</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${item.isCompound ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'}">
+                ${item.isCompound ? 'Chakra' : 'Sada'}
+              </span>
+              <button type="button" onclick="event.stopPropagation(); deleteHistoryRecord(${item.id})" class="text-slate-400 hover:text-red-500 p-1 transition cursor-pointer" title="Delete entry">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-600 dark:text-slate-300 flex justify-between items-center">
+            <span>${formatDateDisplay(item.startDate)} → ${formatDateDisplay(item.endDate)}</span>
+            <span class="font-bold font-mono text-emerald-600 dark:text-emerald-400">${formatINR(item.summary ? item.summary.netDue : 0)}</span>
+          </div>
+
+          ${repsHTML}
+
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between pt-1 border-t border-slate-200/60 dark:border-slate-800">
+            <span>${item.note ? 'Note: ' + item.note : 'Tap to restore'}</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">Load Calculation →</span>
+          </div>
+        `;
+        card.addEventListener('click', () => restoreHistoryEntry(item.id));
+        historyListContainer.appendChild(card);
+      });
+    }
+
+    function openHistoryModal() {
+      historyBackdrop.classList.remove('hidden');
+      setTimeout(() => historyDrawer.classList.remove('translate-x-full'), 10);
+    }
+
+    function closeHistoryModal() {
+      historyDrawer.classList.add('translate-x-full');
+      setTimeout(() => historyBackdrop.classList.add('hidden'), 300);
+    }
+
+    // Event Bindings
+    compoundToggle.addEventListener('change', () => {
+      syncRepaymentsFromDOM();
+
+      if (compoundToggle.checked) {
+        toggleLabelText.textContent = 'Chakra Vaddi (Compound Annually)';
+        toggleSubLabel.textContent = 'Capitalizes interest every 12 months';
+      } else {
+        toggleLabelText.textContent = 'Sada Vaddi (Simple Interest)';
+        toggleSubLabel.textContent = 'Flat monthly rate on principal';
+      }
+
+      checkAutoRecalculate();
+    });
+
+    calculateBtn.addEventListener('click', () => {
+      runCalculation(true);
+    });
+
+    rateInput.addEventListener('input', updateRateBadge);
+
+    setTodayBtn.addEventListener('click', () => {
+      endDateInput.value = getTodayString();
+      endDateErr.classList.add('hidden');
+      checkAutoRecalculate();
+      showToast('Settlement date set to Today');
+    });
+
+    addRepaymentBtn.addEventListener('click', () => {
+      addRepaymentRow('', null);
+    });
+
+    clearAllBtn.addEventListener('click', () => {
+      principalInput.value = '';
+      rateInput.value = '';
+      startDateInput.value = '';
+      endDateInput.value = '';
+      noteInput.value = '';
+      annualRateBadge.textContent = '= 0.0% p.a.';
+      appState.repayments = [];
+      renderRepayments();
+
+      principalErr.classList.add('hidden');
+      rateErr.classList.add('hidden');
+      startDateErr.classList.add('hidden');
+      endDateErr.classList.add('hidden');
+      repaymentValidationErr.classList.add('hidden');
+      dismissAlert();
+
+      // Reset summary cards
+      metricPrincipal.textContent = '₹0.00';
+      metricStartDate.textContent = '--';
+      metricTotalRepaid.textContent = '₹0.00';
+      metricPaymentCount.textContent = '0 payments';
+      metricTotalInterest.textContent = '₹0.00';
+      metricRateInfo.textContent = '--';
+      metricNetDue.textContent = '₹0.00';
+      metricDurationBadge.textContent = '--';
+      footerDuration.textContent = '--';
+      footerNetDue.textContent = '₹0.00';
+      tableSubtitle.textContent = 'Fill in the loan details and click "Calculate & Save"';
+
+      const blankMsg = `
+        <tr>
+          <td colspan="7" class="text-center py-12 text-slate-400 font-sans">
+            <i class="fa-solid fa-calculator text-2xl text-slate-300 dark:text-slate-600 block mb-2"></i>
+            Inputs cleared. Fill in the fields and click <strong>Calculate &amp; Save</strong>.
+          </td>
+        </tr>
+      `;
+      yearlyTableBody.innerHTML = blankMsg;
+      detailedTableBody.innerHTML = blankMsg;
+      showToast('All inputs cleared');
+    });
+
+    // View Switching Tabs
+    tabYearlyBtn.addEventListener('click', () => {
+      yearlyViewContainer.classList.remove('hidden');
+      detailedViewContainer.classList.add('hidden');
+      tabYearlyBtn.className = 'px-3 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs transition cursor-pointer';
+      tabDetailedBtn.className = 'px-3 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition cursor-pointer';
+    });
+
+    tabDetailedBtn.addEventListener('click', () => {
+      detailedViewContainer.classList.remove('hidden');
+      yearlyViewContainer.classList.add('hidden');
+      tabDetailedBtn.className = 'px-3 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs transition cursor-pointer';
+      tabYearlyBtn.className = 'px-3 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition cursor-pointer';
+    });
+
+    // History Drawer Listeners
+    openHistoryBtn.addEventListener('click', openHistoryModal);
+    closeHistoryBtn.addEventListener('click', closeHistoryModal);
+    historyBackdrop.addEventListener('click', closeHistoryModal);
+    clearAllHistoryBtn.addEventListener('click', clearEntireHistory);
+
+    // Share via WhatsApp / Copy
+    shareWhatsAppBtn.addEventListener('click', () => {
+      syncRepaymentsFromDOM();
+      if (!appState.summary.principal || appState.summary.principal <= 0) {
+        showToast('Please perform a calculation first', true);
+        return;
+      }
+
+      const mode = appState.isCompound ? 'Chakra Vaddi (Compound Annually)' : 'Sada Vaddi (Simple Interest)';
+      const noteLine = appState.note ? `\n• Borrower/Note: ${appState.note}` : '';
+
+      let repaymentsText = '';
+      const validReps = appState.repayments.filter(r => r.amount > 0);
+      if (validReps.length > 0) {
+        repaymentsText = '\n*INTERIM REPAYMENTS:*\n';
+        validReps.forEach((r, idx) => {
+          repaymentsText += `• Payment ${idx + 1} (${formatDateDisplay(r.date)}): -${formatINR(r.amount)}\n`;
+        });
+      }
+
+      let yearlySummaryText = '\n*YEAR-WISE BREAKDOWN:*\n';
+      if (appState.yearlyRows && appState.yearlyRows.length > 0) {
+        appState.yearlyRows.forEach(y => {
+          yearlySummaryText += `• ${y.yearLabel} (${formatDateDisplay(y.startDate)} to ${formatDateDisplay(y.endDate)}): Int +${formatINR(y.interest)}${y.repayment > 0 ? ` | Paid -${formatINR(y.repayment)}` : ''} | Close: ${formatINR(y.closing)}\n`;
+        });
+      }
+
+      const msg = 
+`*VADDI LOAN CALCULATION STATEMENT*
+---------------------------------------${noteLine}
+• Principal: ${formatINR(appState.summary.principal)}
+• Interest Rate: ₹${appState.monthlyRate} per ₹100/mo (${(appState.monthlyRate * 12).toFixed(1)}% p.a.)
+• Calculation Mode: ${mode}
+• Loan Given Date: ${formatDateDisplay(appState.startDate)}
+• Settlement Date: ${formatDateDisplay(appState.endDate)}
+• Total Duration: ${appState.summary.duration}
+---------------------------------------${repaymentsText}---------------------------------------${yearlySummaryText}---------------------------------------
+• Total Repaid: ${formatINR(appState.summary.totalRepaid)}
+• Total Interest: ${formatINR(appState.summary.totalInterest)}
+• *NET PAYABLE DUE: ${formatINR(appState.summary.netDue)}*
+---------------------------------------
+_Generated via Village Loan Vaddi Calculator_`;
+
+      const txtArea = document.createElement('textarea');
+      txtArea.value = msg;
+      txtArea.style.position = 'fixed';
+      txtArea.style.opacity = '0';
+      document.body.appendChild(txtArea);
+      txtArea.focus();
+      txtArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Statement copied! Ready to paste into WhatsApp.');
+      } catch (e) {
+        showToast('Failed to copy to clipboard', true);
+      }
+      document.body.removeChild(txtArea);
+    });
+
+    // Export CSV
+    exportCsvBtn.addEventListener('click', () => {
+      const activeRows = !yearlyViewContainer.classList.contains('hidden') ? appState.yearlyRows : appState.detailedRows;
+      if (!activeRows || activeRows.length === 0) {
+        showToast('Please calculate before exporting CSV', true);
+        return;
+      }
+
+      const isYearly = !yearlyViewContainer.classList.contains('hidden');
+      const headers = ['Period/Event', 'Start Date', 'End Date', 'Opening Balance (INR)', 'Duration', 'Interest (INR)', 'Repayments (INR)', 'Closing Balance (INR)'];
+      const csvLines = [headers.join(',')];
+
+      activeRows.forEach(r => {
+        const label = isYearly ? r.yearLabel : r.event;
+        const line = [
+          `"${label.replace(/"/g, '""')}"`,
+          r.startDate,
+          r.endDate,
+          r.opening.toFixed(2),
+          `"${r.duration}"`,
+          r.interest.toFixed(2),
+          r.repayment.toFixed(2),
+          r.closing.toFixed(2)
+        ];
+        csvLines.push(line.join(','));
+      });
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvLines.join('\n'));
+      const a = document.createElement('a');
+      a.setAttribute('href', csvContent);
+      a.setAttribute('download', `Vaddi_Statement_${appState.startDate}_to_${appState.endDate}.csv`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('CSV statement downloaded');
+    });
+
+    // Print
+    printBtn.addEventListener('click', () => {
+      if (!appState.summary.principal || appState.summary.principal <= 0) {
+        showToast('Please calculate first before printing', true);
+        return;
+      }
+      window.print();
+    });
+
+    // Dark/Light Theme Toggle
+    themeToggleBtn.addEventListener('click', () => {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+        localStorage.setItem('vaddi_theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+        localStorage.setItem('vaddi_theme', 'dark');
+      }
+    });
+
+    // Initialization on DOM Load
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('vaddi_theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+      }
+
+      renderRepayments();
+      updateHistoryUI();
+    });
+  </script>
+</body>
+</html>
